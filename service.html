@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin - Edit Department Services</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-image: url('bg img.jpeg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 800px;
+    margin: 80px auto;
+    background-color: rgba(255, 255, 255, 0.92);
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+  }
+
+  h1 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 20px;
+  }
+
+  .service {
+    background-color: #ecf0f1;
+    border-left: 6px solid #2980b9;
+    margin-bottom: 20px;
+    padding: 15px 20px;
+    border-radius: 8px;
+  }
+
+  .sidebar {
+    width: 220px;
+    background-color: #2c3e50;
+    height: 100vh;
+    padding-top: 20px;
+    position: fixed;
+    left: 0;
+    top: 0;
+  }
+
+  .sidebar a {
+    display: block;
+    color: white;
+    padding: 14px 20px;
+    text-decoration: none;
+    font-size: 18px;
+  }
+
+  .sidebar a.active {
+    background-color: #1abc9c;
+  }
+
+  button {
+    background-color: #2980b9;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    margin-top: 15px;
+  }
+
+  button:hover {
+    background-color: #3498db;
+  }
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <a href="sample.html">Home</a>
+  <a href="about.html">About</a>
+  <a class="active" href="service.html">Edit Services</a>
+  <a href="contact.html">Contact</a>
+</div>
+
+<div class="container">
+  <h1>Admin - Edit Department Services</h1>
+
+  <div class="service" contenteditable="true" id="service1">
+    <h3>💻 Computer Labs</h3>
+    <p>Our department offers state-of-the-art computer labs equipped with the latest hardware and software for students to practice and explore emerging technologies.</p>
+  </div>
+
+  <div class="service" contenteditable="true" id="service2">
+    <h3>📚 Workshops & Seminars</h3>
+    <p>We regularly organize workshops, technical talks, and seminars on trending topics like Artificial Intelligence, Machine Learning, Cybersecurity, and IoT.</p>
+  </div>
+
+  <div class="service" contenteditable="true" id="service3">
+    <h3>🤝 Industry Collaborations</h3>
+    <p>The department partners with top industries to offer internships, live projects, and research opportunities to students to bridge the gap between academia and industry.</p>
+  </div>
+
+  <div class="service" contenteditable="true" id="service4">
+    <h3>🧠 Research & Innovation</h3>
+    <p>We encourage faculty and students to engage in research and innovation through funded projects, paper publications, and participation in hackathons.</p>
+  </div>
+
+  <div class="service" contenteditable="true" id="service5">
+    <h3>🎓 Student Clubs</h3>
+    <p>Our active student clubs like the Coding Club, Robotics Club, and Open Source Community foster peer learning and creative project development.</p>
+  </div>
+
+  <button onclick="saveServices()">💾 Save Changes</button>
+</div>
+
+<script>
+function saveServices() {
+  for (let i = 1; i <= 5; i++) {
+    localStorage.setItem('service' + i, document.getElementById('service' + i).innerHTML);
+  }
+  alert('✅ Services updated successfully!');
+}
+</script>
+
+</body>
+</html>

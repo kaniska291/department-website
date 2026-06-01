@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Admin — Department Events (Multiple Posts)</title>
+<style>
+  body{
+    font-family: Arial, Helvetica, sans-serif;
+    background-image:url("bg img.jpeg");
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+    margin:0;
+    padding:30px;
+    min-height:100vh;
+  }
+  .sidebar{
+width: 220px;
+background-color:#2c3e50;
+height: 100vh;
+padding-top: 20px;
+position: fixed;
+left:0;
+top:0;
+}
+.sidebar a{
+display:block;
+color:white;
+padding: 14px 20px;
+text-decoration: none;
+font-size:18px;
+}
+.sidebar a:hover{
+background-color: #34495e;
+}
+.sidebar a.active{
+background-color: #1abc9c;
+color:white;
+font-weight: bold;
+}
+  .card{
+    max-width:760px;
+    margin:0 auto 20px;
+    background:#fff;
+    border-radius:10px;
+    padding:18px;
+    box-shadow:0 6px 20px rgba(0,0,0,0.12);
+  }
+  h1{ text-align:center; color:#2c3e50; margin:0 0 14px; }
+  form label{ display:block; margin:10px 0 6px; font-weight:600; color:#333; }
+  input[type="text"], textarea, input[type="file"]{
+    width:100%; padding:10px; border-radius:6px; border:1px solid #ccc; box-sizing:border-box;
+  }
+  textarea{ min-height:90px; resize:vertical; }
+  .controls{ margin-top:12px; display:flex; gap:8px; }
+  button{ padding:10px 16px; border-radius:8px; border:none; cursor:pointer; background:#2980b9; color:#fff; }
+  button.secondary{ background:#c0392b; }
+  #eventsList{ margin-top:18px; }
+  .event{
+    background:rgba(255,255,255,0.98); border-radius:8px; padding:12px; margin-bottom:12px; box-shadow:0 2px 8px rgba(0,0,0,0.06);
+    position:relative;
+  }
+  .event img{ max-width:100%; border-radius:6px; margin-top:8px; display:block; }
+  .event .meta{ font-size:12px; color:#666; margin-bottom:8px; }
+  .event .buttons{ position:absolute; right:12px; top:12px; display:flex; gap:6px; }
+  .event .buttons button{ background:#444; padding:6px 8px; font-size:12px; }
+  .event .buttons button.del{ background:#c0392b; color:#fff; }
+  .no-events{ text-align:center; color:#444; padding:20px 0; }
+  @media(max-width:700px){
+    .card{ margin:10px; }
+  }
+</style>
+</head>
+<body>
+<div class="sidebar">
+<a class="active" href="sample.html">Home</a>
+<a href="about.html">About</a>
+<a href="service.html">Services</a>
+<a href="contact.html">Contact</a>
+</div>
+<div class="card">
+  <h1>Admin — Post Department Events</h1>
+
+  <form id="eventForm" autocomplete="off">
+    <label for="title">Event Title</label>
+    <input id="title" type="text" placeholder="Enter event title" required />
+
+    <label for="description">Event Description</label>
+    <textarea id="description" placeholder="Enter description" required></textarea>
+
+    <label for="image">Upload Image (optional)</label>
+    <input id="image" type="file" accept="image/*" />
+
+    <div class="controls">
+      <button id="submitBtn" type="submit">Post Event</button>
+      <button id="cancelBtn" type="button" class="secondary">Cancel Edit / Clear</button>
+    </div>
+  </form>
+</div>
+
+<div class="card" style="padding-top:6px;">
+  <h2 style="margin:6px 0 12px;">Posted Events</h2>
+  <div id="eventsList"></div>
+</div>
+
+<script>
+(function(){
+  console.log('Admin events script initializing');
+
+  // Elements
+  const form = document.getElementById('eventForm');
+  const titleEl = document.getElementById('title');
+  const descEl  = document.getElementById('description');
+  const imgEl   = document.getElementById('image');
+  const eventsList = document.getElementById('eventsList');
+  const cancelBtn = document.getElementById('cancelBtn');
+
+  // Storage key
+  const STORAGE_KEY = 'departmentEvents_v1';
+
+  // Events array and edit index
+  let events = [];
+  let editIndex = null; // null => creating new, number => editing existing
+
+  // Safe load from localStorage (defensive)
+  function loadEvents(){
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      events = raw ? JSON.parse(raw) : [];
+      if (!Array.isArray(events)) events = [];
+    } catch (err) {
+      console.error('Error loading events from localStorage:', err);
+      events = [];
+    }
+  }
+
+  function saveEvents(){
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(events));
+      console.log('Saved', events.length, 'events to localStorage');
+    } catch (err) {
+      console.error('Error saving events to localStorage:', err);
+      alert('Unable to save event — localStorage may be disabled.');
+    }
+  }
+
+  // Render list
+  function render(){
+    eventsList.innerHTML = '';
+    if (events.length === 0) {
+      eventsList.innerHTML = '<div class="no-events">No events posted yet.</div>';
+      return;
+    }
+
+    events.forEach((ev, idx) => {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'event';
+      // HTML escape function for safety
+      const esc = s => String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
+      const html = `
+        <div><strong>${esc(ev.title)}</strong></div>
+        <div class="meta">Posted on: ${new Date(ev.createdAt).toLocaleString()}</div>
+        <div>${esc(ev.description).replaceAll('\\n','<br/>')}</div>
+        ${ev.image ? `<img src="${ev.image}" alt="event image" />` : ''}
+      `;
+      wrapper.innerHTML = html;
+
+      const btnWrap = document.createElement('div');
+      btnWrap.className = 'buttons';
+      const editBtn = document.createElement('button');
+      editBtn.textContent = 'Edit';
+      editBtn.onclick = () => startEdit(idx);
+      const delBtn = document.createElement('button');
+      delBtn.textContent = 'Delete';
+      delBtn.className = 'del';
+      delBtn.onclick = () => removeEvent(idx);
+
+      btnWrap.appendChild(editBtn);
+      btnWrap.appendChild(delBtn);
+      wrapper.appendChild(btnWrap);
+
+      eventsList.appendChild(wrapper);
+    });
+  }
+
+  // Create or update event in memory then persist
+  function upsertEvent(title, description, imageData){
+    const eventObj = {
+      title: title,
+      description: description,
+      image: imageData || '', // empty string if none
+      createdAt: new Date().toISOString()
+    };
+
+    if (editIndex === null) {
+      // New event: add to beginning so newest appear first
+      events.unshift(eventObj);
+      console.log('Added new event:', eventObj.title);
+    } else {
+      // Replace existing (keep createdAt of original? We update createdAt here)
+      events[editIndex] = eventObj;
+      console.log('Updated event index', editIndex, '->', eventObj.title);
+      editIndex = null;
+    }
+
+    saveEvents();
+    render();
+  }
+
+  // Delete event
+  function removeEvent(index){
+    if (!confirm('Delete this event?')) return;
+    events.splice(index,1);
+    saveEvents();
+    render();
+  }
+
+  // Start editing: populate form and set editIndex
+  function startEdit(index){
+    const ev = events[index];
+    editIndex = index;
+    titleEl.value = ev.title;
+    descEl.value = ev.description;
+    // image file inputs cannot be set programmatically for security — we show preview if needed but keep image data from stored event when saving without a new file
+    // To indicate stored image we do nothing special — when saving without picking a new image we preserve existing image.
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  // Clear form and cancel edit
+  function clearForm(){
+    form.reset();
+    editIndex = null;
+  }
+
+  // Handle submit
+  form.addEventListener('submit', function(ev){
+    ev.preventDefault();
+    console.log('Form submit triggered');
+
+    const title = titleEl.value.trim();
+    const description = descEl.value.trim();
+    const file = imgEl.files[0];
+
+    if (!title || !description){
+      alert('Please fill title and description.');
+      return;
+    }
+
+    // If user selected an image file, read it; otherwise, preserve existing image when editing or set '' when new
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e){
+        const dataUrl = e.target.result;
+        upsertEvent(title, description, dataUrl);
+        clearForm();
+      };
+      reader.onerror = function(err){
+        console.error('FileReader error', err);
+        alert('Failed to read image file.');
+      };
+      reader.readAsDataURL(file);
+    } else {
+      // No new file selected. If editing and existing event has image — preserve it.
+      const existingImage = (editIndex !== null && events[editIndex] && events[editIndex].image) ? events[editIndex].image : '';
+      upsertEvent(title, description, existingImage);
+      clearForm();
+    }
+  });
+
+  cancelBtn.addEventListener('click', function(){
+    clearForm();
+  });
+
+  // Initialization
+  loadEvents();
+  render();
+
+  // Expose some functions for debugging from console (optional)
+  window.__events_debug = () => { console.log('events:', events); return events; };
+
+  console.log('Admin events ready — total events loaded:', events.length);
+
+})();
+</script>
+
+</body>
+</html>

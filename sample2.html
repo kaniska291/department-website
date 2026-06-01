@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Student — View Department Events</title>
+<style>
+  body{
+    font-family: Arial, Helvetica, sans-serif;
+    background-image:url("bg img.jpeg");
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+    margin:0;
+    padding:30px;
+    min-height:100vh;
+  }
+  .sidebar{
+width: 220px;
+background-color:#2c3e50;
+height: 100vh;
+padding-top: 20px;
+position: fixed;
+left:0;
+top:0;
+}
+.sidebar a{
+display:block;
+color:white;
+padding: 14px 20px;
+text-decoration: none;
+font-size:18px;
+}
+.sidebar a:hover{
+background-color: #34495e;
+}
+.sidebar a.active{
+background-color: #1abc9c;
+color:white;
+font-weight: bold;
+}
+  .card{
+    max-width:760px;
+    margin:0 auto 20px;
+    background:#fff;
+    border-radius:10px;
+    padding:18px;
+    box-shadow:0 6px 20px rgba(0,0,0,0.12);
+  }
+  h1{ text-align:center; color:#2c3e50; margin:0 0 14px; }
+  .event{
+    background:rgba(255,255,255,0.98);
+    border-radius:8px;
+    padding:12px;
+    margin-bottom:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.06);
+  }
+  .event img{ max-width:100%; border-radius:6px; margin-top:8px; display:block; }
+  .event .meta{ font-size:12px; color:#666; margin-bottom:8px; }
+  .no-events{ text-align:center; color:#444; padding:20px 0; }
+  @media(max-width:700px){
+    .card{ margin:10px; }
+  }
+</style>
+</head>
+<body>
+<div class="sidebar">
+<a class="active" href="sample2.html">Home</a>
+<a href="about1.html">About</a>
+<a href="service1.html">Services</a>
+<a href="contact1.html">Contact</a>
+</div>
+<div class="card">
+  <h1>Department Events</h1>
+  <div id="eventsList"></div>
+</div>
+
+<script>
+(function(){
+  const eventsList = document.getElementById('eventsList');
+  const STORAGE_KEY = 'departmentEvents_v1';
+  let events = [];
+
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    events = raw ? JSON.parse(raw) : [];
+  } catch (err) {
+    console.error('Error loading events:', err);
+  }
+
+  if (!Array.isArray(events) || events.length === 0) {
+    eventsList.innerHTML = '<div class="no-events">No events posted yet.</div>';
+    return;
+  }
+
+  events.forEach(ev => {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'event';
+    const esc = s => String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
+    const html = `
+      <div><strong>${esc(ev.title)}</strong></div>
+      <div class="meta">Posted on: ${new Date(ev.createdAt).toLocaleString()}</div>
+      <div>${esc(ev.description).replaceAll('\\n','<br/>')}</div>
+      ${ev.image ? `<img src="${ev.image}" alt="event image" />` : ''}
+    `;
+    wrapper.innerHTML = html;
+    eventsList.appendChild(wrapper);
+  });
+})();
+</script>
+
+</body>
+</html>

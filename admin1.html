@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin Login</title>
+<link rel="stylesheet" type="text/css" href="external1.css">
+</head>
+<body>
+
+<form id="admin-login">
+  <h2>Admin Login</h2>
+
+  <label for="admin-email">Email:</label>
+  <input type="email" id="admin-email" name="admin-email" placeholder="Enter your Kongu Mail ID" required />
+
+  <label for="admin-password">Password:</label>
+  <input type="password" id="admin-password" name="admin-password" placeholder="Enter the password" required maxlength="8" />
+
+  <button type="button" onclick="validateForm()">Log In</button>
+  <p>Or <span style="color:blue; cursor:pointer;" onclick="signup()">Sign Up</span></p>
+  <p id="msg" style="color:red;"></p>
+</form>
+
+<script>
+  // Hardcoded Admin credentials
+  const adminEmail = "admin@kongu.edu";
+  const adminPass = "admin123";
+
+  function validateForm() {
+    const email = document.getElementById('admin-email').value.trim();
+    const password = document.getElementById('admin-password').value.trim();
+    const msg = document.getElementById('msg');
+
+    if(email === adminEmail && password === adminPass) {
+      // Correct credentials → redirect to Admin editing page
+      window.location.href = "sample.html";
+    } else {
+      // Invalid credentials → show error
+      msg.textContent = "Invalid Email or Password!";
+    }
+  }
+
+  function signup() {
+    // Reload login page
+    window.location.href = "admin1.html";
+  }
+</script>
+
+</body>
+</html>

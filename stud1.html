@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Student Login</title>
+<link rel="stylesheet" type="text/css" href="external1.css">
+</head>
+<body>
+
+<form id="student-login">
+  <h2>Student Login</h2>
+
+  <label for="student-email">Email:</label>
+  <input type="email" id="student-email" placeholder="Enter your Kongu Mail ID" required />
+
+  <label for="student-password">Password:</label>
+  <input type="password" id="student-password" placeholder="Enter the password" required maxlength="10" />
+
+  <button type="button" onclick="validateForm()">Log In</button>
+  <p>Or <span style="color:blue; cursor:pointer;" onclick="signup()">Sign Up</span></p>
+  <p id="msg" style="color:red;"></p>
+</form>
+
+<script>
+  // Hardcoded Student credentials
+  const studentEmail = "student@kongu.edu";
+  const studentPass = "student123";
+
+  function validateForm() {
+    const email = document.getElementById('student-email').value.trim();
+    const password = document.getElementById('student-password').value.trim();
+    const msg = document.getElementById('msg');
+
+    if(email === studentEmail && password === studentPass) {
+      // Correct credentials → open Student view page
+      window.location.href = "sample2.html";
+    } else {
+      msg.textContent = "Invalid Email or Password!";
+    }
+  }
+
+  function signup() {
+    // Reload login page
+    window.location.href = "student-login.html";
+  }
+</script>
+
+</body>
+</html>
